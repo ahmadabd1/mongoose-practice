@@ -35,7 +35,7 @@ for (var i = 0; i < isbns.length; i++) {
   for subsequent runs, re-comment it so that it runs only once!
   that said, there is a fail-safe to avoid duplicates below
   =======================================================*/
-  loadFromAPI(apiURL)
+  // loadFromAPI(apiURL)
 }
 console.log("done");
 
@@ -113,7 +113,7 @@ adds new people and their kids until you do have 100
 try to understand how this code works
 could you write it differently?
 =======================================================*/
-Person.find({}).count().then(function(err, count) {
+Person.find({}).count().then(function(count) {
   // the below two loops could be changed to a simple:
   // for (var i = count; i < 100; i++) {}
   if (count < 100) {
@@ -155,20 +155,101 @@ and your server is running do the following:
 /*Books
 ----------------------*/
 //1. Find books with fewer than 500 but more than 200 pages
+// app.get('/booksPage', function (req, res) {
+
+//   Book.find(
+//     { 
+//       pages: { $gt: 200, $lt: 500 }
+
+//     }).then(book => {
+//     res.send(book)
+//   })
+// })
 
 //2. Find books whose rating is less than 5, and sort by the author's name
+// app.get('/booksRating', function (req, res) {
+
+//   Book.find(
+//     { 
+//       rating: { $lt: 5 }
+
+//     }).sort({
+//       author:1
+//     }).then(book => {
+//     res.send(book)
+//   })
+// })
 
 //3. Find all the Fiction books, skip the first 2, and display only 3 of them
+app.get('/booksFiction', function (req, res) {
 
+  Book.find(
+    { 
+      genres: "Fiction"
+
+    }).sort({
+      author:1
+    }).skip(2).limit(3).then(book => {
+    res.send(book)
+  })
+})
 
 /*People
 ----------------------*/
 //1. Find all the people who are tall (>180) AND rich (>30000)
-
+app.get('/peopleAnd',function(req,res){
+  Person.find(
+    {height:{$gt :180},
+    salary:{$gt:30000}}
+  ).then(person=>{
+    res.send(person)
+  })
+})
 //2. Find all the people who are tall (>180) OR rich (>30000)
+app.get('/peopleOr',function(req,res){
+  Person.find({
+   $or:[ 
+    {height:{$gt :180},
+    salary:{$gt:30000}}
+ ] }).then(person=>{
+    res.send(person)
+  })
+})
 
 //3. Find all the people who have grey hair or eyes, and are skinny (<70)
+app.get('/peopleSkinny', function (req, res) {
+  Person.find({
+    $and: [{
+      weight: { $lt: 70 },
+      $or: [
+
+        { hair: "grey" },
+        { eyes: "grey" }
+
+      ]
+    }
+    ]
+  }).then(person => {
+    res.send(person)
+  })
+})
 
 //4. Find people who have at least 1 kid with grey hair
+app.get('/peopleKidHair', function (req, res) {
+  Person.find({
+    "kids.hair":"grey"
+   
+  }).then(person => {
+    res.send(person)
+  })
+})
 
 //5. Find all the people who have at least one overweight kid, and are overweight themselves (>100)
+app.get('/peopleKidOverWeight', function (req, res) {
+  Person.find({
+    "kids.weight":{$gt:100}
+   
+  }).then(person => {
+    res.send(person)
+  })
+})
